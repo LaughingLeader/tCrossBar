@@ -43,6 +43,7 @@ local macroComboBinds = {
 };
 
 local lastScopeIndex = 0
+local lastComboTypeIndex = 0
 
 local function GetMacroStateText(state)
     if (state == 3) and (gSettings.EnableDoubleTap == false) then
@@ -380,16 +381,19 @@ Setup.Weaponskill = function(skipUpdate)
     end
 end
 
-Update.Type = function(newValue)
+Update.Type = function(newValue, index)
     Setup[newValue]();
+    if index ~= nil then
+        lastComboTypeIndex = index
+    end
 end
 
-Update.Action = function(newValue)
+Update.Action = function(newValue, index)
     local type = state.Combos.Type[state.Indices.Type];
     if (state.Indices.Action > #state.ActionResources) then
         Update.Empty();
     else
-        Update[type](state.Indices.Action);
+        Update[type](state.Indices.Action, index);
     end
 end
 
@@ -878,6 +882,13 @@ function exposed:Show(macroState, macroButton)
             MacroLabel = { '' },
         };
         Setup.Ability();
+        if lastComboTypeIndex ~= nil and lastComboTypeIndex > 1 then
+            local typeName = state.Combos.Type[lastComboTypeIndex];
+            if typeName ~= nil then
+                state.Indices.Type = lastComboTypeIndex;
+                Setup[typeName](true);
+            end
+        end
         return;
     end
 
