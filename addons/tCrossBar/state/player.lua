@@ -27,7 +27,7 @@ if playerIndex ~= 0 then
         };
         
         if (playerData.Job.MainJob > 0) and (playerData.Id ~= 0) then
-            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob);
+            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob, playerData.Job.SubJob);
         end
 
         local pInventory = AshitaCore:GetPointerManager():Get('inventory');
@@ -110,11 +110,11 @@ ashita.events.register('packet_in', 'player_tracker_handleincomingpacket', funct
                 JobPoints = {},
                 JobPointInit = { Categories = false, Totals = false, Timer = os.clock() + 3 }
             };
-            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob);
+            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob, playerData.Job.SubJob);
         elseif (job ~= playerData.Job.MainJob) or (sub ~= playerData.Job.SubJob) then
             playerData.Job.MainJob = job;
             playerData.Job.SubJob = sub;
-            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob);
+            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob, playerData.Job.SubJob);
         end
         playerData.LoggedIn = true;
     elseif (e.id == 0x00B) then
@@ -125,7 +125,7 @@ ashita.events.register('packet_in', 'player_tracker_handleincomingpacket', funct
         if ((job ~= playerData.Job.MainJob) or (sub ~= playerData.Job.SubJob)) and (playerData.Id ~= 0) then
             playerData.Job.MainJob = job;
             playerData.Job.SubJob = sub;
-            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob);
+            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob, playerData.Job.SubJob);
         end
     elseif (e.id == 0x061) then
         local job = struct.unpack('B', e.data, 0x0C + 1);
@@ -135,7 +135,7 @@ ashita.events.register('packet_in', 'player_tracker_handleincomingpacket', funct
         if ((job ~= playerData.Job.MainJob) or (sub ~= playerData.Job.SubJob)) and (playerData.Id ~= 0) then
             playerData.Job.MainJob = job;
             playerData.Job.SubJob = sub;
-            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob);
+            gBindings:LoadDefaults(playerData.Name, playerData.Id, playerData.Job.MainJob, playerData.Job.SubJob);
         end
         playerData.Job.MainJobLevel = mainLevel;
         playerData.Job.SubJobLevel = subLevel;

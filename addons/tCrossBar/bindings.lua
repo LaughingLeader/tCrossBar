@@ -4,6 +4,9 @@ local bindings = {
         Default = T{},
         Palettes = T{ { Name="Base", Bindings = T{} } }
     },
+    SubJobBindings = T{
+        Default = T{}
+    },
 };
 bindings.ActivePalette = bindings.JobBindings.Palettes[1];
 bindings.ActivePaletteIndex = 1;
@@ -81,24 +84,43 @@ local function WriteJob(jobBindings)
     writer:close();
 end
 
+local function WriteSubJob()
+    local writer = io.open(bindings.SubJobPath, 'w');
+    writer:write('return T{\n');
+    writer:write('    Default = T{\n');
+    for hotkey,binding in pairs(bindings.SubJobBindings.Default) do
+        WriteBinding(writer, 8, hotkey, binding);
+    end
+    writer:write('    },\n');
+    writer:write('};');
+    writer:close();
+end
+
 local function FormatBindings()
     local output = {};
     for hotkey,binding in pairs(bindings.ActivePalette.Bindings) do
         output[hotkey] = binding;
-        binding.Scope = 3;
+        binding.Scope = ScopeIndex.Palette;
     end
 
     for hotkey,binding in pairs(bindings.JobBindings.Default) do
         if (output[hotkey] == nil) then
             output[hotkey] = binding;
-            binding.Scope = 2;
+            binding.Scope = ScopeIndex.Job;
+        end
+    end
+
+    for hotkey,binding in pairs(bindings.SubJobBindings.Default) do
+        if (output[hotkey] == nil) then
+            output[hotkey] = binding;
+            binding.Scope = ScopeIndex.SubJob;
         end
     end
 
     for hotkey,binding in pairs(bindings.GlobalBindings) do
         if  (output[hotkey] == nil) then
             output[hotkey] = binding;
-            binding.Scope = 1;
+            binding.Scope = ScopeIndex.Global;
         end
     end
 
@@ -118,7 +140,7 @@ end
 
 local exposed = {};
 
-function exposed:LoadDefaults(name, id, job)
+function exposed:LoadDefaults(name, id, job, subjob)
     if (name == '') or (id == 0) then
         bindings = {
             GlobalBindings = T{},
@@ -173,6 +195,25 @@ function exposed:LoadDefaults(name, id, job)
         };
     end
 
+    local subjobDirPath = string.format("%s/%s", characterPath, "subjob")
+    if not (ashita.fs.exists(subjobDirPath)) then
+        ashita.fs.create_directory(subjobDirPath);
+    end
+
+    --Check/Create subjob file..
+    bindings.SubJobPath = string.format('%s/%s.lua', subjobDirPath, AshitaCore:GetResourceManager():GetString('jobs.names_abbr', subjob));
+    bindings.SubJobBindings = LoadFile_s(bindings.SubJobPath);
+
+    if (bindings.SubJobBindings == nil) then
+        bindings.SubJobBindings = T{
+            Default = T{}
+        };
+
+        if not (ashita.fs.exists(bindings.SubJobPath)) then
+            WriteSubJob();
+        end
+    end
+
     bindings.ActivePalette = bindings.JobBindings.Palettes[1];
     bindings.ActivePaletteIndex = 1;
     bindings.LastPaletteIndex = 1;
@@ -192,6 +233,12 @@ end
 function exposed:BindJob(hotkey, binding)
     bindings.JobBindings.Default[hotkey] = binding;
     WriteJob();
+    ApplyBindings();
+end
+
+function exposed:BindSubJob(hotkey, binding)
+    bindings.SubJobBindings.Default[hotkey] = binding;
+    WriteSubJob();
     ApplyBindings();
 end
 

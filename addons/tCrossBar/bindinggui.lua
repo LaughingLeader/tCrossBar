@@ -42,6 +42,7 @@ local macroComboBinds = {
     [6] = 'RT2'
 };
 
+local lastScopeIndex = 0
 
 local function GetMacroStateText(state)
     if (state == 3) and (gSettings.EnableDoubleTap == false) then
@@ -81,7 +82,7 @@ local function ComboBox(displayName, varName, color)
                     state.Indices[varName] = index;
                     local updateFunction = Update[varName];
                     if updateFunction then
-                        updateFunction(state.Combos[varName][index]);
+                        updateFunction(state.Combos[varName][index], index);
                     end
                 end
             end
@@ -98,7 +99,7 @@ local function AdvanceCombo(varName)
     state.Indices[varName] = index;
     local updateFunction = Update[varName];
     if updateFunction then
-        updateFunction(state.Combos[varName][index]);
+        updateFunction(state.Combos[varName][index], index);
     end
 end
 
@@ -111,7 +112,7 @@ local function DecrementCombo(varName)
     state.Indices[varName] = index;
     local updateFunction = Update[varName];
     if updateFunction then
-        updateFunction(state.Combos[varName][index]);
+        updateFunction(state.Combos[varName][index], index);
     end
 end
 
@@ -498,6 +499,12 @@ Update.Weaponskill = function(index)
     UpdateMacroImage();
 end
 
+Update.Scope = function (value, index)
+    if index ~= nil then
+        lastScopeIndex = index
+    end
+end
+
 local function GetBindResource()
     local type = state.Combos.Type[state.Indices.Type];
     if T{'Ability', 'Item', 'Spell', 'Trust', 'Weaponskill'}:contains(type) then
@@ -515,11 +522,13 @@ local function AttemptBind()
     end
 
     if (state.Combos.Type[state.Indices.Type] == 'Empty') then
-        if (state.Indices.Scope == 1) then
+        if (state.Indices.Scope == ScopeIndex.Global) then
             gBindings:BindGlobal(state.Hotkey, nil);
-        elseif (state.Indices.Scope == 2) then
+        elseif (state.Indices.Scope == ScopeIndex.Job) then
             gBindings:BindJob(state.Hotkey, nil);
-        elseif (state.Indices.Scope == 3) then
+        elseif (state.Indices.Scope == ScopeIndex.SubJob) then
+            gBindings:BindSubJob(state.Hotkey, nil);
+        elseif (state.Indices.Scope == ScopeIndex.Palette) then
             gBindings:BindPalette(state.Hotkey, nil);
         else
             return false;
@@ -585,11 +594,13 @@ local function AttemptBind()
     binding.ShowSkillchainIcon = state.Components.SkillchainIcon;
     binding.ShowSkillchainAnimation = state.Components.SkillchainAnimation;
     binding.ShowHotkey = state.Components.Hotkey;
-    if (state.Indices.Scope == 1) then
+    if (state.Indices.Scope == ScopeIndex.Global) then
         gBindings:BindGlobal(state.Hotkey, binding);
-    elseif (state.Indices.Scope == 2) then
+    elseif (state.Indices.Scope == ScopeIndex.Job) then
         gBindings:BindJob(state.Hotkey, binding);
-    elseif (state.Indices.Scope == 3) then
+    elseif (state.Indices.Scope == ScopeIndex.SubJob) then
+        gBindings:BindSubJob(state.Hotkey, binding);
+    elseif (state.Indices.Scope == ScopeIndex.Palette) then
         gBindings:BindPalette(state.Hotkey, binding);
     else
         return false;
@@ -843,7 +854,7 @@ function exposed:Show(macroState, macroButton)
             Hotkey = hotkey,
             ActionResources = T{},
             Combos = {
-                ['Scope'] = T{ 'Global', 'Job', 'Palette' },
+                ['Scope'] = T{ 'Global', 'Job', 'Subjob', 'Palette'},
                 ['Type'] = T{ 'Ability', 'Command', 'Empty', 'Item', 'Spell', 'Trust', 'Weaponskill' },
                 ['Action'] = T{ },
             },
@@ -859,7 +870,7 @@ function exposed:Show(macroState, macroButton)
                 Hotkey = false,
             },
             Indices = {
-                ['Scope'] = 3,
+                ['Scope'] = (lastScopeIndex ~= nil and lastScopeIndex > 0) and lastScopeIndex or ScopeIndex.Palette,
                 ['Type'] = 1,
             },
             CostOverride = { '' },
@@ -880,7 +891,7 @@ function exposed:Show(macroState, macroButton)
         ForceTab = 1,
         ActionResources = T{},
         Combos = {
-            ['Scope'] = T{ 'Global', 'Job', 'Palette' },
+            ['Scope'] = T{ 'Global', 'Job', 'Subjob', 'Palette' },
             ['Type'] = T{ 'Ability', 'Command', 'Empty', 'Item', 'Spell', 'Trust', 'Weaponskill' },
             ['Action'] = T{ },
         },

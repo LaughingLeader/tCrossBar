@@ -66,3 +66,10 @@ function LoadFile_s(filePath)
 
     return output;
 end
+
+ScopeIndex = {
+    Global = 1,
+    Job = 2,
+    SubJob = 3,
+    Palette = 4
+}
