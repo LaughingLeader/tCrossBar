@@ -291,6 +291,11 @@ function exposed:Render()
                         settings.save();
                     end
                     imgui.ShowHelp('Determines how long the activation flash occurs for when ShowTrigger is enabled.')
+
+                    imgui.TextColored(header, 'Fade UI');
+                    CheckBox('While Entering Commands', 'FadeIfCommandMenu');
+                    imgui.ShowHelp('Fades the UI while the commands menu is open, in certain contexts.');
+ 
                     imgui.TextColored(header, 'Hide UI');
                     CheckBox('While Zoning', 'HideWhileZoning');
                     imgui.ShowHelp('Hides UI while you are zoning or on title screen.');
@@ -298,6 +303,8 @@ function exposed:Render()
                     imgui.ShowHelp('Hides UI while the game event system is active.');
                     CheckBox('While Map Open', 'HideWhileMap');
                     imgui.ShowHelp('Hides UI while the map is the topmost menu.');
+                    CheckBox('While Changing Job', 'HideWhileJobMenu');
+                    imgui.ShowHelp('Hides the UI while changing your job.');
                     imgui.TextColored(header, 'Combo Behavior');
                     CheckBox('Combo Priority', 'EnablePriority');
                     imgui.ShowHelp('When enabled, pressing LR then R2 will be a seperate set from pressing R2 then L2.  When disabled, order won\'t matter.');

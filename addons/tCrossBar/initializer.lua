@@ -23,6 +23,8 @@ if not ashita.fs.exists(layoutConfigFolder) then
     ashita.fs.create_directory(layoutConfigFolder);
 end
 
+FADE_UI_ACTIVE = false
+
 --Initialize settings..
 local defaultSettings = T{
     --Layouts tab..
@@ -50,6 +52,8 @@ local defaultSettings = T{
     HideWhileZoning = true,
     HideWhileCutscene = true,
     HideWhileMap = true,
+    HideWhileJobMenu = true,
+    FadeIfCommandMenu = false,
     DefaultSelectTarget = false,
     EnableDoubleTap = true,
     EnablePriority = true,
@@ -145,6 +149,7 @@ local function PrepareLayout(layout, scale)
     end
 
     layout.FadeOpacity = d3d8.D3DCOLOR_ARGB(layout.FadeOpacity, 255, 255, 255);
+    layout.MenuFadeOpacity = d3d8.D3DCOLOR_ARGB(layout.MenuFadeOpacity or 32, 255, 255, 255);
     layout.TriggerOpacity = d3d8.D3DCOLOR_ARGB(layout.TriggerOpacity, 255, 255, 255);
 end
 

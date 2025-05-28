@@ -96,6 +96,7 @@ end
 
 local textOrder = T { 'Hotkey', 'Cost', 'Recast', 'Name' };
 local d3dwhite = d3d8.D3DCOLOR_ARGB(255, 255, 255, 255);
+local allFade = d3d8.D3DCOLOR_ARGB(32, 255, 255, 255)
 local vec_position = ffi.new('D3DXVECTOR2', { 0, 0, });
 local vec_font_scale = ffi.new('D3DXVECTOR2', { 1.0, 1.0, });
 function Element:Initialize()
@@ -166,13 +167,15 @@ function Element:RenderIcon(sprite)
     local positionY = self.PositionY;
     local layout = self.Layout;
 
+    local baseColor = FADE_UI_ACTIVE and layout.MenuFadeOpacity or d3dwhite
+
     --Draw frame first..
     if ((self.Binding) or (gSettings.ShowEmpty)) and (gSettings.ShowFrame) then
         local component = layout.Textures.Frame;
         if component then
             vec_position.x = positionX + layout.Frame.OffsetX;
             vec_position.y = positionY + layout.Frame.OffsetY;
-            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, d3dwhite);
+            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, baseColor);
         end
     end
 
@@ -215,8 +218,12 @@ function Element:RenderIcon(sprite)
         vec_position.x = positionX + layout.Icon.OffsetX;
         vec_position.y = positionY + layout.Icon.OffsetY;
         local opacity = d3dwhite;
-        if (gSettings.ShowFade) and (self.Binding.ShowFade) and (not self.State.Ready) then
-            opacity = layout.FadeOpacity;
+        if FADE_UI_ACTIVE then
+            opacity = layout.MenuFadeOpacity
+        else
+            if (gSettings.ShowFade) and (self.Binding.ShowFade) and (not self.State.Ready) then
+                opacity = layout.FadeOpacity;
+            end
         end
         sprite:Draw(icon.Texture, icon.Rect, icon.Scale, nil, 0.0, vec_position, opacity);
     end
@@ -227,7 +234,7 @@ function Element:RenderIcon(sprite)
         if component then
             vec_position.x = positionX + layout.Icon.OffsetX;
             vec_position.y = positionY + layout.Icon.OffsetY;
-            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, d3dwhite);
+            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, baseColor);
         end
     end
 
@@ -237,7 +244,7 @@ function Element:RenderIcon(sprite)
         if component then
             vec_position.x = positionX + layout.Icon.OffsetX;
             vec_position.y = positionY + layout.Icon.OffsetY;
-            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, d3dwhite);
+            sprite:Draw(component.Texture, component.Rect, component.Scale, nil, 0.0, vec_position, baseColor);
         end
     end
 

@@ -44,6 +44,9 @@ return {
 
         --Transparency to be used when bound macro's action is not known.  [0-255]
         FadeOpacity = 128,
+
+        --Transparency to be used when the overall menu should fade out.  [0-255]
+        MenuFadeOpacity = 32,
         
         --Opacity of the overlay shown when a macro is activated.  [0-255]
         TriggerOpacity = 128,
@@ -245,6 +248,9 @@ return {
     
         --Transparency to be used when bound macro's action is not known.  [0-255]
         FadeOpacity = 128,
+
+        --Transparency to be used when the overall menu should fade out.  [0-255]
+        MenuFadeOpacity = 32,
         
         --Opacity of the overlay shown when a macro is activated.  [0-255]
         TriggerOpacity = 128,    

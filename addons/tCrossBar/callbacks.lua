@@ -40,6 +40,8 @@ local function GetInterfaceHidden()
     return (ashita.memory.read_uint8(ptr + 0xB4) == 1);
 end
 
+local hideInSubMenu = {"abiselec", "magic", "inventor", "mcrmenu", "mcres"}
+
 local function ShouldHide()
     if (gSettings.HideWhileZoning) then
         if (player:GetLoggedIn() == false) then
@@ -53,9 +55,29 @@ local function ShouldHide()
         end
     end
 
-    if (gSettings.HideWhileMap) then
-        if (string.match(GetMenuName(), 'map')) then
+    if gSettings.HideWhileMap or gSettings.FadeIfCommandMenu or gSettings.HideWhileJobMenu then
+        local menuName = GetMenuName()
+
+        if gSettings.HideWhileMap and string.match(menuName, 'map') then
             return true;
+        end
+
+        if gSettings.HideWhileJobMenu and string.match(menuName, 'job') or string.match(menuName, "comyn") then
+            return true;
+        end
+
+        --inline is when you're entering a command
+        FADE_UI_ACTIVE = false
+        if gSettings.FadeIfCommandMenu and string.match(menuName, 'menu') then
+            if not string.match(menuName, 'inline') and not string.match(menuName, 'playermo') then
+                --Message(menuName)
+                for _,v in pairs(hideInSubMenu) do
+                    if string.match(menuName, v) then
+                        FADE_UI_ACTIVE = true
+                        break
+                    end
+                end
+            end
         end
     end
 
