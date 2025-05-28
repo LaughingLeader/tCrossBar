@@ -53,10 +53,28 @@ local function WriteBinding(writer, depth, hotkey, binding)
     writer:write(string.format('%s},\n', pad1));
 end
 
+local function GetSortedPairs(tbl)
+    local keys = {}
+    local count = 0
+    for k,v in pairs(tbl) do
+        count = count + 1
+        keys[count] = k
+    end
+    table.sort(keys)
+    local i = 0
+	return function ()
+		i = i + 1
+		if i <= count then
+            local key = keys[i]
+			return key,tbl[key]
+		end
+	end
+end
+
 local function WriteGlobals(globalBindings)
     local writer = io.open(bindings.GlobalPath, 'w');
     writer:write('return T{\n');
-    for hotkey,binding in pairs(bindings.GlobalBindings) do
+    for hotkey,binding in GetSortedPairs(bindings.GlobalBindings) do
         WriteBinding(writer, 4, hotkey, binding);
     end
     writer:write('};');
@@ -67,14 +85,14 @@ local function WriteJob(jobBindings)
     local writer = io.open(bindings.JobPath, 'w');
     writer:write('return T{\n');
     writer:write('    Default = T{\n');
-    for hotkey,binding in pairs(bindings.JobBindings.Default) do
+    for hotkey,binding in GetSortedPairs(bindings.JobBindings.Default) do
         WriteBinding(writer, 8, hotkey, binding);
     end
     writer:write('    },\n');
     writer:write('    Palettes = T{\n');
     for _,palette in ipairs(bindings.JobBindings.Palettes) do
         writer:write(string.format('        { Name=%q, Bindings = T{\n', palette.Name));
-        for hotkey,binding in pairs(palette.Bindings) do
+        for hotkey,binding in GetSortedPairs(palette.Bindings) do
             WriteBinding(writer, 12, hotkey, binding);
         end
         writer:write('        } },\n');
@@ -88,7 +106,7 @@ local function WriteSubJob()
     local writer = io.open(bindings.SubJobPath, 'w');
     writer:write('return T{\n');
     writer:write('    Default = T{\n');
-    for hotkey,binding in pairs(bindings.SubJobBindings.Default) do
+    for hotkey,binding in GetSortedPairs(bindings.SubJobBindings.Default) do
         WriteBinding(writer, 8, hotkey, binding);
     end
     writer:write('    },\n');
